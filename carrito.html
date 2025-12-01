@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrito de Compras</title>
+
+  <style>
+    :root{
+      --accent:#ff6a00;
+      --bg:#f7f7f7;
+      --card:#ffffff;
+      --muted:#888;
+    }
+    body{
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 20px;
+      color: #222;
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    header h1{ margin:0; font-size:22px; }
+
+    .carrito-container{
+      background: var(--card);
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+
+    .item {
+      display:flex;
+      gap:14px;
+      align-items:center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item:last-child { border-bottom: none; }
+
+    .item img{ width:84px; height:84px; object-fit:cover; border-radius:8px; }
+
+    .meta{
+      flex:1;
+      min-width: 0;
+    }
+
+    .meta h3{ margin:0 0 6px 0; font-size:16px; }
+    .meta p{ margin:3px 0; font-size:14px; color:#444; }
+
+    .controls{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+    }
+
+    .qty {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .qty input[type="number"]{
+      width:64px;
+      padding:6px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      text-align:center;
+    }
+
+    .btn-eliminar{
+      background:#ff4b4b;
+      color:white;
+      border:none;
+      padding:8px 10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn-eliminar:hover{ background:#e03b3b; }
+
+    .summary{
+      margin-top:18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .total {
+      font-weight:700;
+      font-size:18px;
+    }
+
+    .btn-pagar{
+      background: linear-gradient(135deg, var(--accent), #ff8533);
+      color:white;
+      border:none;
+      padding:12px 18px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+      box-shadow: 0 6px 16px rgba(255,106,0,0.18);
+    }
+
+    .vacío {
+      text-align:center;
+      color:var(--muted);
+      padding:40px 0;
+      font-size:18px;
+    }
+
+    a.volver{
+      display:inline-block;
+      margin-bottom:12px;
+      color: #333;
+      text-decoration:none;
+      background:#efefef;
+      padding:8px 12px;
+      border-radius:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Tu carrito</h1>
+      <a class="volver" href="productos.html">← Seguir comprando</a>
+    </header>
+
+    <div class="carrito-container" id="carrito-container">
+      <!-- Items se insertan por JS -->
+    </div>
+  </div>
+
+<script>
+/*
+  carrito.html (autónomo)
+  - Lee array 'carrito' desde localStorage
+  - Muestra items, permite cambiar cantidad, eliminar
+  - Calcula subtotal y total correctamente (precio * cantidad)
+  - Botón 'Ir a pagar' redirige a pago.html
+*/
+
+function formatoNumero(n){
+  // conviene número entero/float y formatea sin decimales
+  const num = Number(n) || 0;
+  return Math.round(num);
+}
+
+function formatearMoneda(n){
+  return formatoNumero(n).toLocaleString('es-CO'); // ejemplo formato miles
+}
+
+function cargarCarrito(){
+  const raw = localStorage.getItem('carrito');
+  try {
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    console.error('Error parseando carrito:', e);
+    return [];
+  }
+}
+
+function guardarCarrito(carrito){
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+/* render */
+function renderCarrito(){
+  const cont = document.getElementById('carrito-container');
+  const carrito = cargarCarrito();
+
+  if (!carrito || carrito.length === 0){
+    cont.innerHTML = '<div class="vacío">Tu carrito está vacío.</div>';
+    return;
+  }
+
+  let html = '';
+  let total = 0;
+
+  carrito.forEach((it, idx) => {
+    // asegurarnos de tener números
+    const precio = Number(it.precio) || 0;
+    const cantidad = Number(it.cantidad) || 1;
+    const subtotal = precio * cantidad;
+    total += subtotal;
+
+    html += `
+      <div class="item" data-idx="${idx}">
+        <img src="${it.imagen || ''}" alt="${escapeHtml(it.nombre || '')}">
+        <div class="meta">
+          <h3>${escapeHtml(it.nombre || 'Sin nombre')}</h3>
+          <p>Talla: ${escapeHtml(it.talla || 'Sin seleccionar')} • Color: ${escapeHtml(it.color || 'Sin seleccionar')}</p>
+          <p>Precio unitario: $${formatearMoneda(precio)}</p>
+        </div>
+
+        <div class="controls">
+          <div class="qty">
+            <label style="font-size:13px;color:#666;">Cantidad</label>
+            <input type="number" min="1" value="${cantidad}" data-idx="${idx}" class="cant-input">
+          </div>
+          <div>
+            <button class="btn-eliminar" data-idx="${idx}">Eliminar</button>
+          </div>
+          <div style="font-weight:700; margin-top:6px;">Subtotal: $${formatearMoneda(subtotal)}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="summary">
+      <div class="total">Total: $${formatearMoneda(total)}</div>
+      <button class="btn-pagar" id="btn-pagar">Ir a pagar</button>
+    </div>
+  `;
+
+  cont.innerHTML = html;
+
+  // listeners: eliminar y cambio cantidad
+  document.querySelectorAll('.btn-eliminar').forEach(b => {
+    b.addEventListener('click', (e) => {
+      const i = Number(b.dataset.idx);
+      eliminarItem(i);
+    });
+  });
+
+  document.querySelectorAll('.cant-input').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      let val = Number(inp.value) || 1;
+      if (val < 1) val = 1;
+      const i = Number(inp.dataset.idx);
+      actualizarCantidad(i, val);
+    });
+  });
+
+  document.getElementById('btn-pagar').addEventListener('click', () => {
+    window.location.href = 'pago.html';
+  });
+}
+
+/* eliminar por índice */
+function eliminarItem(i){
+  let carrito = cargarCarrito();
+  if (i < 0 || i >= carrito.length) return;
+  carrito.splice(i,1);
+  guardarCarrito(carrito);
+  renderCarrito();
+}
+
+/* actualizar cantidad */
+function actualizarCantidad(i, cantidad){
+  let carrito = cargarCarrito();
+  if (i < 0 || i >= carrito.length) return;
+  carrito[i].cantidad = Number(cantidad);
+  guardarCarrito(carrito);
+  renderCarrito();
+}
+
+/* escapado básico para evitar inyección HTML */
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+/* inicial */
+document.addEventListener('DOMContentLoaded', renderCarrito);
+</script>
+</body>
+</html>
+

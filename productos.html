@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>NOMBRE DE SU NEGOCIO</title>
+</head>
+
+<body>
+
+<header>
+  <p>&nbsp;&nbsp;</p>
+  <img src="https://www.ccisur.org/wp-content/uploads/2023/06/INSERTAR-LOGO.jpg"
+        width="150" height="150">
+
+  <h1>Bienvenido a NOMBRE DE SU NEGOCIO</h1>
+  <p>ESLOGAN DE SU NEGOCIO</p>
+
+  <div class="nav-links">
+    <a href="productos.html"><button>Ver productos</button></a>
+    <a href="info.html"><button>Información de contacto</button></a>
+    <a href="pago.html"><button>Sección de pago</button></a>
+    <a href="index.html"><button>Página de inicio</button></a>
+    <a href="carrito.html"><button>Ver carrito</button></a>
+
+    <div class="search-box">
+      <input type="checkbox" id="search-toggle">
+      <label for="search-toggle" class="search-btn">
+        <img src="https://millo.co/wp-content/themes/millo2021/img/icons/search.png" width="18">
+        Buscar
+      </label>
+      <div class="search-input">
+        <input type="text" id="search-input" onkeyup="filtrarProductos()" placeholder="Buscar...">
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PRIMERA SECCIÓN: CALZADO -->
+<h1 style="text-align:center; margin-top:40px;">Productos de calzado</h1>
+
+<section class="productos-grid">
+
+  <!-- PRODUCTO 1 -->
+  <div class="producto"
+       data-id="1"
+       data-nombre="Zapatos masculinos elegantes"
+       data-precio="120000"
+       data-tallas="38,39,40,41"
+       data-colores="Marrón,Negro"
+       data-descripcion="Zapatos masculinos cómodos, cuero auténtico, ideales para uso diario."
+       data-imagen="https://i.etsystatic.com/18061757/r/il/12ab26/1600415867/il_500x500.1600415867_ttmz.jpg">
+
+    <img class="img" src="https://i.etsystatic.com/18061757/r/il/12ab26/1600415867/il_500x500.1600415867_ttmz.jpg">
+    <p>Zapatos masculinos elegantes talla 40 cuero negro o marrón</p>
+
+    <button class="btn-carrito">
+      <img src="https://cdn-icons-png.flaticon.com/128/3737/3737173.png" width="40">
+    </button>
+
+    <select class="cantidad">
+      <option>1</option><option>2</option><option>3</option>
+    </select>
+  </div>
+
+  <!-- PRODUCTO 2 -->
+  <div class="producto"
+       data-id="2"
+       data-nombre="Zapatillas running mujer Adidas"
+       data-precio="180000"
+       data-tallas="36,37,38,39"
+       data-colores="Verde,Rosado,Morado"
+       data-descripcion="Zapatillas running para mujer, ligeras y transpirables."
+       data-imagen="https://www.ferrersport.com/sites/default/files/productos/calzado/2023/zapatillas-running-mujer-adidas-adizero-SL-Imag1.jpg">
+
+    <img class="img" src="https://www.ferrersport.com/sites/default/files/productos/calzado/2023/zapatillas-running-mujer-adidas-adizero-SL-Imag1.jpg">
+    <p>Zapatos femeninos running talla 37 colores verde, rosado o morado</p>
+
+    <button class="btn-carrito">
+      <img src="https://cdn-icons-png.flaticon.com/128/3737/3737173.png" width="40">
+    </button>
+
+    <select class="cantidad">
+      <option>1</option><option>2</option><option>3</option>
+    </select>
+  </div>
+
+  <!-- PRODUCTO 3 -->
+  <div class="producto"
+       data-id="3"
+       data-nombre="Zapatos unisex casuales"
+       data-precio="95000"
+       data-tallas="37,38,39,40"
+       data-colores="Marrón"
+       data-descripcion="Zapatos casuales unisex, suela flexible, comfort total."
+       data-imagen="https://ae01.alicdn.com/kf/S5b536971745b4ef587324c30fd24d9f0j/HOBIBEAR-zapatos-anchos-para-correr-al-aire-libre-Unisex-zapatillas-casuales-Zero-Drop-zapatos-minimalistas.jpg">
+
+    <img class="img" src="https://ae01.alicdn.com/kf/S5b536971745b4ef587324c30fd24d9f0j/HOBIBEAR-zapatos-anchos-para-correr-al-aire-libre-Unisex-zapatillas-casuales-Zero-Drop-zapatos-minimalistas.jpg">
+    <p>Zapatos unisex anchos color marrón talla 39</p>
+
+    <button class="btn-carrito">
+      <img src="https://cdn-icons-png.flaticon.com/128/3737/3737173.png" width="40">
+    </button>
+
+    <select class="cantidad">
+      <option>1</option><option>2</option><option>3</option>
+    </select>
+  </div>
+
+</section>
+
+<!-- SECCIÓN DE CUIDADO PERSONAL -->
+<h1 style="text-align:center; margin-top:50px;">Productos de cuidado personal</h1>
+
+<section class="productos-grid">
+
+  <!-- PRODUCTO 4 -->
+  <div class="producto"
+       data-id="4"
+       data-nombre="Esponjas de baño"
+       data-precio="8000"
+       data-colores="Multicolor"
+       data-descripcion="Paquete de esponjas coloridas para baño familiar."
+       data-imagen="https://m.media-amazon.com/images/I/81ORWFfR8pL._AC_SL1500_.jpg">
+
+    <img class="img" src="https://m.media-amazon.com/images/I/81ORWFfR8pL._AC_SL1500_.jpg">
+    <p>Esponjas de colores para la familia</p>
+
+    <button class="btn-carrito small-cart">
+      <img src="https://cdn-icons-png.flaticon.com/128/3737/3737173.png">
+    </button>
+
+    <select class="cantidad">
+      <option>1</option><option>2</option><option>3</option>
+    </select>
+  </div>
+
+  <!-- PRODUCTO 5 -->
+  <div class="producto"
+       data-id="5"
+       data-nombre="Jabón Asepxia clásico"
+       data-precio="14000"
+       data-descripcion="Jabón Asepxia para control de acné y limpieza profunda."
+       data-imagen="https://m.media-amazon.com/images/I/719nLdbD-mL._SL1500_.jpg">
+
+    <img class="img" src="https://m.media-amazon.com/images/I/719nLdbD-mL._SL1500_.jpg">
+    <p>Jabón Asepxia cuidado de granos versión clásica</p>
+
+    <button class="btn-carrito small-cart">
+      <img src="https://cdn-icons-png.flaticon.com/128/3737/3737173.png">
+    </button>
+
+    <select class="cantidad">
+      <option>1</option><option>2</option><option>3</option>
+    </select>
+  </div>
+
+</section>
+
+<p id="no-resultados" style="display:none; text-align:center; font-size:20px; padding:20px;">
+  ❌ No hay resultados ❌
+</p>
+
+<script src="buascar.js"></script>
+<script src="carrito.js"></script>
+
+<footer class="footer">
+  <p>NOMBRE DE SU NEGOCIO &reg;. Todos los derechos reservados.</p>
+</footer>
+
+</body>
+</html>
+
+
+

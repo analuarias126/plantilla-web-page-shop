@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Detalle del producto</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Contenedor principal */
+    .detalle {
+      max-width: 850px;
+      margin: 25px auto;
+      display: flex;
+      gap: 25px;
+      align-items: flex-start;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    }
+
+    .detalle img {
+      width: 330px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .detalle .info {
+      flex: 1;
+    }
+
+    .detalle .info h2 {
+      margin-top: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .detalle .info label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    .detalle .info select,
+    .detalle .info input[type="number"] {
+      padding: 8px;
+      margin-top: 6px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    /* BOTONES BONITOS */
+
+    /* botón principal */
+    .btn-principal {
+      display: inline-block;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #ff7b1a, #ff5100);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: 0.2s ease;
+      box-shadow: 0px 4px 12px rgba(255, 81, 0, 0.4);
+    }
+
+    .btn-principal:hover {
+      transform: translateY(-3px);
+      box-shadow: 0px 6px 16px rgba(255, 81, 0, 0.55);
+    }
+
+    /* botón volver */
+    .btn-secundario {
+      background: #e8e8e8;
+      color: #333;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+      margin: 15px;
+    }
+
+    .btn-secundario:hover {
+      background: #d6d6d6;
+      transform: translateY(-2px);
+    }
+
+    #msg-no-producto {
+      text-align: center;
+      color: red;
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BOTÓN VOLVER -->
+  <a href="productos.html">
+    <button class="btn-secundario">← Volver a productos</button>
+  </a>
+
+  <!-- CONTENEDOR DEL DETALLE -->
+  <div id="detalle-contenedor" class="detalle" style="display:none;">
+    <img id="detalle-img" src="" alt="">
+    <div class="info">
+      <h2 id="detalle-nombre"></h2>
+      <p id="detalle-descripcion"></p>
+      <p><b>Precio:</b> <span id="detalle-precio"></span></p>
+
+      <label>Talla:
+        <select id="detalle-tallas"></select>
+      </label>
+
+      <label>Color:
+        <select id="detalle-colores"></select>
+      </label>
+
+      <label>Cantidad:
+        <input type="number" id="detalle-cantidad" min="1" value="1">
+      </label>
+
+      <button id="detalle-agregar" class="btn-principal">
+        Agregar al carrito 🛒
+      </button>
+    </div>
+  </div>
+
+  <!-- MENSAJE SI NO CARGA NINGÚN PRODUCTO -->
+  <p id="msg-no-producto" style="display:none;">
+    No se encontró información del producto.
+  </p>
+
+<script>
+  // Leer información del producto seleccionadp
+  const raw = localStorage.getItem("productoSeleccionado");
+
+  if (!raw) {
+    document.getElementById("msg-no-producto").style.display = "block";
+  } else {
+    const p = JSON.parse(raw);
+
+    document.getElementById("detalle-contenedor").style.display = "flex";
+    document.getElementById("detalle-img").src = p.imagen || "";
+    document.getElementById("detalle-nombre").innerText = p.nombre || "Sin nombre";
+    document.getElementById("detalle-descripcion").innerText = p.descripcion || "";
+    document.getElementById("detalle-precio").innerText = p.precio ? "$" + p.precio : "—";
+
+    // selects
+    const tallasSelect = document.getElementById("detalle-tallas");
+    const coloresSelect = document.getElementById("detalle-colores");
+
+    function rellenar(selectEl, csv, placeholder) {
+      selectEl.innerHTML = "";
+      if (!csv) {
+        const opt = document.createElement("option");
+        opt.value = "Sin seleccionar";
+        opt.innerText = placeholder || "Sin opciones";
+        selectEl.appendChild(opt);
+        return;
+      }
+      csv.split(",").map(s => s.trim()).forEach(val => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.innerText = val;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    rellenar(tallasSelect, p.tallas, "Sin talla");
+    rellenar(coloresSelect, p.colores, "Sin color");
+
+    if (p.cantidad)
+      document.getElementById("detalle-cantidad").value = p.cantidad;
+
+    // Agregar al carrito
+    document.getElementById("detalle-agregar").addEventListener("click", () => {
+      const item = {
+        id: p.id || "",
+        nombre: p.nombre || "",
+        precio: p.precio || "",
+        imagen: p.imagen || "",
+        cantidad: Number(document.getElementById("detalle-cantidad").value),
+        talla: document.getElementById("detalle-tallas").value,
+        color: document.getElementById("detalle-colores").value
+      };
+
+      let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+      const idx = carrito.findIndex(c => c.id === item.id && c.talla === item.talla && c.color === item.color);
+
+      if (idx >= 0) {
+        carrito[idx].cantidad += item.cantidad;
+      } else {
+        carrito.push(item);
+      }
+
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+
+      alert("Producto agregado al carrito");
+    });
+  }
+</script>
+
+</body>
+</html>
+

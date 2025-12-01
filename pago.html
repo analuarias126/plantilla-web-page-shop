@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Pagar con cualquier metodo</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f7f7f7;
+        text-align: center;
+    }
+
+    h2 {
+        color: #333;
+        margin-top: 10px;
+        margin-bottom: 25px;
+    }
+
+    .precio-box {
+        background: white;
+        padding: 18px;
+        border-radius: 12px;
+        display: inline-block;
+        font-size: 22px;
+        font-weight: bold;
+        color: #222;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .btn-nequi {
+        display: inline-block;
+        background: #6a0dad;
+        color: white;
+        padding: 14px 26px;
+        font-size: 20px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.25s;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .btn-nequi:hover {
+        background: #8b22e6;
+        transform: scale(1.05);
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Confirmar pago</h2>
+
+<div class="precio-box">
+    Total a pagar: $<span id="total"></span> COP
+</div>
+
+<br><br>
+
+<a id="nequiBtn" class="btn-nequi" target="_blank">Pagar con cualquier metodo de pago</a>
+
+<script>
+    // ------------------------------
+    // 1️⃣ LEER EL CARRITO REAL
+    // ------------------------------
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    // ------------------------------
+    // 2️⃣ CALCULAR EL TOTAL REAL
+    // ------------------------------
+    let total = carrito.reduce((sum, item) => {
+        return sum + (Number(item.precio) * Number(item.cantidad));
+    }, 0);
+
+   
+    document.getElementById("total").textContent = total.toLocaleString();
+
+    
+    let linkNequi = "https://checkout.nequi.wompi.co/l/VPOS_ek5e2e";  // <<--- CAMBIA ESTO
+
+    // Si tu link NO necesita monto dinámico, usa solo: linkNequi
+    // Si tu link SÍ permite monto dinámico (muchos sí), usa esto:
+    let linkFinal = `${linkNequi}?valor=${total}`;
+
+    
+    document.getElementById("nequiBtn").href = linkFinal;
+
+</script>
+
+</body>
+</html>
+

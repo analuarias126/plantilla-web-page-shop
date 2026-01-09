@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login / Registro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <p>&nbsp;&nbsp;</p>
+    <!-- Usa una URL pública para la imagen o colócala en la carpeta del sitio -->
+    <img src="img\Captura de pantalla 2025-12-01 211811_preview_rev_4.png" width="140" height="140" alt="logo">
+
+    <h1>Bienvenido a Arreglos Florales Bogota</h1>
+    <p>Hermosos arreglos florales para toda ocasión</p>
+
+    <div class="nav-links">
+      <a href="productos.html"><button>Ver productos</button></a>
+      <a href="info.html"><button>Información de contacto</button></a>
+      <a href="pago.html"><button>Sección de pago</button></a>
+      <a href="index.html"><button>Página de inicio</button></a>
+      <a href="carrito.html"><button>Ver carrito</button></a>
+
+      <div class="right">
+        <span id="user-greeting" style="display:none;"></span>
+        <a id="perfil-link" href="perfil.html" style="display:none;">Perfil</a>
+        <a id="login-link" href="login.html">Iniciar sesión</a>
+        <button id="logout-btn" style="display:none;">Cerrar sesión</button>
+      </div>
+
+      <div class="search-box">
+        <input type="checkbox" id="search-toggle">
+        <label for="search-toggle" class="search-btn">
+          <img src="https://millo.co/wp-content/themes/millo2021/img/icons/search.png" width="18">
+          Buscar
+        </label>
+        <div class="search-input">
+          <input type="text" id="search-input" onkeyup="filtrarProductos()" placeholder="Buscar...">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:700px;margin:30px auto;padding:20px;">
+    <div style="display:flex;gap:30px;flex-wrap:wrap;">
+      <section style="flex:1;min-width:280px;">
+        <h2>Crear cuenta</h2>
+        <form id="form-signup">
+          <input type="text" id="signup-nombre" placeholder="Nombre completo" required style="width:100%;padding:8px;"><br><br>
+          <input type="email" id="signup-email" placeholder="Email" required style="width:100%;padding:8px;"><br><br>
+          <input type="password" id="signup-pass" placeholder="Contraseña" required style="width:100%;padding:8px;"><br><br>
+          <button type="submit" style="padding:10px 14px;background:#ff6a00;color:#fff;border:none;border-radius:8px;">Crear cuenta</button>
+        </form>
+
+        <p id="signup-msg" style="color:green;margin-top:12px;"></p>
+      </section>
+
+      <section style="flex:1;min-width:280px;">
+        <h2>Iniciar sesión</h2>
+        <form id="form-signin">
+          <input type="email" id="signin-email" placeholder="Email" required style="width:100%;padding:8px;"><br><br>
+          <input type="password" id="signin-pass" placeholder="Contraseña" required style="width:100%;padding:8px;"><br><br>
+          <button type="submit" style="padding:10px 14px;background:#2b8aef;color:#fff;border:none;border-radius:8px;">Entrar</button>
+        </form>
+
+        <p id="signin-msg" style="color:red;margin-top:12px;"></p>
+      </section>
+    </div>
+  </main>
+
+  <!-- libs y archivos -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+
+  <script src="auth.js"></script>
+
+  <!-- Script de manejo de login/registro -->
+  <script>
+  const formSignup = document.getElementById('form-signup');
+  const formSignin = document.getElementById('form-signin');
+  const signupMsg = document.getElementById('signup-msg');
+  const signinMsg = document.getElementById('signin-msg');
+
+  // =====================
+  // CREAR CUENTA
+  // =====================
+  formSignup.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    signupMsg.textContent = '';
+    signupMsg.style.color = 'green';
+
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-pass').value;
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      signupMsg.style.color = 'red';
+      signupMsg.textContent = error.message;
+      return;
+    }
+
+    // Si requiere confirmación por email
+    if (!data.user) {
+      signupMsg.textContent =
+        'Cuenta creada. Revisa tu correo y confirma la cuenta antes de iniciar sesión.';
+      return;
+    }
+
+    signupMsg.textContent = 'Cuenta creada correctamente. Redirigiendo...';
+
+    setTimeout(() => {
+      window.location.href = 'perfil.html';
+    }, 1000);
+  });
+
+  // =====================
+  // INICIAR SESIÓN
+  // =====================
+  formSignin.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    signinMsg.textContent = '';
+    signinMsg.style.color = 'red';
+
+    const email = document.getElementById('signin-email').value.trim();
+    const password = document.getElementById('signin-pass').value;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      signinMsg.textContent = 'Email o contraseña incorrectos';
+      return;
+    }
+
+    window.location.href = 'perfil.html';
+  });
+</script>
+
+
+</body>
+</html>
+

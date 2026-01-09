@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Pagar</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f7f7f7;
+    text-align: center;
+}
+.precio-box {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    display: inline-block;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+.btn-nequi {
+    background: #6a0dad;
+    color: white;
+    padding: 14px 26px;
+    font-size: 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Confirmar pago</h2>
+
+<div class="precio-box">
+    Total a pagar: $<span id="total"></span> COP
+</div>
+
+<br>
+
+<a id="nequiBtn" class="btn-nequi">Pagar</a>
+
+<!-- SUPABASE V2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+
+<script>
+(async () => {
+
+    /* ==========================
+       1️⃣ CARRITO Y TOTAL
+    ========================== */
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    if (!carrito.length) {
+        alert("El carrito está vacío");
+        return;
+    }
+
+    const total = carrito.reduce(
+        (s, i) => s + Number(i.precio) * Number(i.cantidad),
+        0
+    );
+
+    document.getElementById("total").textContent =
+        total.toLocaleString("es-CO");
+
+    /* ==========================
+       2️⃣ GUARDAR PEDIDO + EDGE
+    ========================== */
+    async function saveOrderYRedirigir() {
+
+        // Usuario autenticado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert("Debes iniciar sesión");
+            window.location.href = "login.html";
+            return;
+        }
+
+        // Perfil
+        const { data: profile, error } = await supabase
+            .from("users")
+            .select("id")
+            .eq("auth_id", user.id)
+            .single();
+
+        if (error || !profile) {
+            console.error(error);
+            alert("Perfil no encontrado");
+            return;
+        }
+
+        // Pedido
+        const direccion =
+            localStorage.getItem("direccion_pago") || "Sin dirección";
+
+        const pedido = {
+            user_id: profile.id,
+            items: carrito,
+            total: total,
+            direccion: direccion
+        };
+
+        // Guardar pedido en BD
+        const { error: e2 } = await supabase
+            .from("orders")
+            .insert([pedido]);
+
+        if (e2) {
+            console.error(e2);
+            alert("Error guardando pedido");
+            return;
+        }
+
+        /* ==========================
+           3️⃣ EDGE FUNCTION
+        ========================== */
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData.session.access_token;
+
+        const EDGE_FUNCTION_URL =
+            "https://oriennkzsriahlbqsywf.supabase.co/functions/v1/send-order-email";
+
+        const res = await fetch(EDGE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                email: user.email,
+                total: total,
+                items: carrito,
+                direccion: direccion,
+                user_id: profile.id
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.checkout_url) {
+            console.error("Respuesta Edge Function:", data);
+            alert("Error generando link de pago");
+            return;
+        }
+
+        // REDIRECCIÓN A WOMPI
+        window.location.href = data.checkout_url;
+    }
+
+    document
+        .getElementById("nequiBtn")
+        .addEventListener("click", saveOrderYRedirigir);
+
+})();
+</script>
+
+</body>
+</html>

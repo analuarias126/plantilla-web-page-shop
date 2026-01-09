@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  
+
+  <title>Arreglos florales</title>
+</head>
+<body>
+  <header>
+    <p>&nbsp;&nbsp;</p>
+    <img src="img\Captura de pantalla 2025-12-01 211811_preview_rev_4.png"
+          width= "200" height="200" >
+    <h1>Bienvenido a Arreglos Florales Bogota</h1>
+    <p>Hermosos arreglos florales para toda ocasión</p>
+
+    <div class="nav-links">
+
+      <a href="productos.html"><button>Ver productos</button></a>
+      <a href="info.html"><button>Información de contacto</button></a>
+      <a href="pago.html"><button>Sección de pago</button></a>
+      <a href="index.html"><button>Página de inicio</button></a>
+      <a href="carrito.html"><button>ver carrito</button></a>
+
+      <div class="right">
+    <!-- aquí mostrará el nombre si está logueado -->
+        <span id="user-greeting" style="display:none;"></span>
+        <a id="perfil-link" href="perfil.html" style="display:none;">Perfil</a>
+        <a id="login-link" href="login.html">Iniciar sesión</a>
+        <button id="logout-btn" style="display:none;">Cerrar sesión</button>
+      </div>
+
+      <!-- BUSCAR SIN JS -->
+      <div class="search-box">
+
+        <!-- Toggle oculto -->
+        <input type="checkbox" id="search-toggle">
+
+        <!-- Botón buscar -->
+        <label for="search-toggle" class="search-btn">
+          <img src="https://millo.co/wp-content/themes/millo2021/img/icons/search.png" width="18">
+          Buscar
+        </label>
+
+        <!-- Input que aparece a la derecha -->
+        <div class="search-input">
+          <input type="text" id="search-input" onkeyup="filtrarProductos()" placeholder="Buscar...">
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </header>
+  
+
+  <footer class="footer">
+    <p>NOMBRE DE SU NEGOCIO &reg;. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="supabase.js"></script>
+
+  <script src="auth.js"></script>
+
+
+  <script src="buascar.js"></script>
+
+</body>
+</html>

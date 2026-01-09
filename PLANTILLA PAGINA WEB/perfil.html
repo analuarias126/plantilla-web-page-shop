@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mi Perfil</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <p>&nbsp;&nbsp;</p>
+    <img src="img\Captura de pantalla 2025-12-01 211811_preview_rev_4.png" width="140" height="140" alt="logo">
+
+    <h1>Bienvenido a Arreglos Florales Bogota</h1>
+    <p>Hermosos arreglos florales para toda ocasión</p>
+
+    <div class="nav-links">
+      <a href="productos.html"><button>Ver productos</button></a>
+      <a href="info.html"><button>Información de contacto</button></a>
+      <a href="pago.html"><button>Sección de pago</button></a>
+      <a href="index.html"><button>Página de inicio</button></a>
+      <a href="carrito.html"><button>Ver carrito</button></a>
+
+      <div class="right">
+        <span id="user-greeting" style="display:none;"></span>
+        <a id="perfil-link" href="perfil.html" style="display:none;">Perfil</a>
+        <a id="login-link" href="login.html">Iniciar sesión</a>
+        <button id="logout-btn" style="display:none;">Cerrar sesión</button>
+      </div>
+
+      <div class="search-box">
+        <input type="checkbox" id="search-toggle">
+        <label for="search-toggle" class="search-btn">
+          <img src="https://millo.co/wp-content/themes/millo2021/img/icons/search.png" width="18">
+          Buscar
+        </label>
+        <div class="search-input">
+          <input type="text" id="search-input" onkeyup="filtrarProductos()" placeholder="Buscar...">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:900px;margin:40px auto;padding:20px;">
+    <h2>Mi perfil</h2>
+    <div id="perfil-contenedor">
+      <p>Cargando...</p>
+    </div>
+
+    <h3 style="margin-top:28px;">Mis pedidos</h3>
+    <div id="pedidos-contenedor"></div>
+  </main>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="supabase.js"></script>
+
+  <script src="auth.js"></script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const perfilCont = document.getElementById('perfil-contenedor');
+  const pedidosCont = document.getElementById('pedidos-contenedor');
+
+  async function cargarPerfil() {
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_id', user.id)
+      .single();
+
+    if (error) {
+      perfilCont.innerHTML = '<p>Error cargando perfil.</p>';
+      console.error(error);
+      return;
+    }
+
+    perfilCont.innerHTML = `
+      <p><b>Nombre:</b> ${profile.nombre || ''}</p>
+      <p><b>Email:</b> ${user.email}</p>
+      <p><b>Teléfono:</b> ${profile.telefono || ''}</p>
+      <p><b>Dirección:</b> ${profile.direccion || ''}</p>
+
+      <button id="editar-perfil"
+        style="padding:8px 14px;border-radius:8px;
+        background:#ff6a00;color:white;border:none;margin-top:10px;">
+        Editar
+      </button>
+    `;
+
+    document.getElementById('editar-perfil').onclick = () =>
+      mostrarFormulario(profile);
+
+    cargarPedidos(profile.id);
+  }
+
+  function mostrarFormulario(profile) {
+    perfilCont.innerHTML = `
+      <label>Nombre</label><br>
+      <input id="nombre" value="${profile.nombre || ''}" style="width:100%;padding:6px;"><br><br>
+
+      <label>Teléfono</label><br>
+      <input id="telefono" value="${profile.telefono || ''}" style="width:100%;padding:6px;"><br><br>
+
+      <label>Dirección</label><br>
+      <input id="direccion" value="${profile.direccion || ''}" style="width:100%;padding:6px;"><br><br>
+
+      <button id="guardar"
+        style="padding:8px 14px;border-radius:8px;
+        background:#2b8aef;color:white;border:none;">
+        Guardar
+      </button>
+
+      <button id="cancelar"
+        style="padding:8px 14px;border-radius:8px;
+        margin-left:8px;">
+        Cancelar
+      </button>
+
+      <p id="perfil-msg"></p>
+    `;
+
+    document.getElementById('guardar').onclick = () =>
+      guardarCambios(profile.auth_id);
+
+    document.getElementById('cancelar').onclick = cargarPerfil;
+  }
+
+  async function guardarCambios(auth_id) {
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const direccion = document.getElementById('direccion').value.trim();
+
+    const { error } = await supabase
+      .from('users')
+      .update({ nombre, telefono, direccion })
+      .eq('auth_id', auth_id);
+
+    const msg = document.getElementById('perfil-msg');
+
+    if (error) {
+      msg.style.color = 'red';
+      msg.textContent = error.message;
+      return;
+    }
+
+    msg.style.color = 'green';
+    msg.textContent = 'Perfil actualizado correctamente';
+    setTimeout(cargarPerfil, 800);
+  }
+
+  async function cargarPedidos(user_id) {
+    const { data: pedidos, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', user_id)
+      .order('fecha', { ascending: false });
+
+    if (error) {
+      pedidosCont.innerHTML = '<p>Error cargando pedidos.</p>';
+      console.error(error);
+      return;
+    }
+
+    pedidosCont.innerHTML = pedidos.length
+      ? pedidos.map(p => `
+          <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;">
+            <div><b>Fecha:</b> ${new Date(p.fecha).toLocaleString()}</div>
+            <div><b>Total:</b> $${Number(p.total).toLocaleString()}</div>
+
+            <div style="margin-top:8px;">
+              <b>Productos:</b>
+              <ul>
+                ${p.items.map(item => `
+                  <li>
+                    ${item.nombre}
+                    (${item.color || 'Sin color'}, talla ${item.talla || 'N/A'})
+                    x${item.cantidad} — $${Number(item.precio).toLocaleString()}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          </div>
+        `).join('')
+      : '<p>No tienes pedidos aún.</p>';
+  }
+
+  cargarPerfil();
+});
+</script>
+
+
+
+</body>
+</html>
+
